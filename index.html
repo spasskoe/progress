@@ -84,6 +84,9 @@ canvas{width:100%;height:170px;display:block}
 .bmilabels span{position:absolute;transform:translateX(-50%)}
 .bmilabels span:nth-child(1){left:19%}.bmilabels span:nth-child(2){left:47%}.bmilabels span:nth-child(3){left:68%}.bmilabels span:nth-child(4){left:89%}
 .bmiline{font-weight:600;margin:8px 0 4px;font-size:14px}
+.fc{margin-top:14px;padding:14px;border-radius:14px;background:linear-gradient(145deg,#eff5ff,#e3edff);border:1px solid #cddcfa}
+.fcdate{font-size:24px;font-weight:800;color:var(--blue-d);margin:4px 0 2px}
+.fcsub{font-size:14px;font-weight:600;color:var(--text)}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);background:var(--blue-d);color:#fff;padding:11px 18px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;box-shadow:0 8px 24px rgba(30,64,175,.3);white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
@@ -115,6 +118,12 @@ canvas{width:100%;height:170px;display:block}
     </div>
     <div class="bar"><i id="barFill"></i></div>
     <div class="between muted"><span id="barLeft"></span><span id="barPct"></span><span id="barRight"></span></div>
+    <div class="fc">
+      <div style="font-weight:700">🎯 Коли досягну цілі</div>
+      <div class="fcdate" id="fcDate">—</div>
+      <div class="fcsub" id="fcSub"></div>
+      <div class="muted" id="fcNote" style="margin-top:6px"></div>
+    </div>
   </section>
 
   <section class="card">
@@ -233,6 +242,32 @@ function renderStats(){
   $('streakChip').textContent='🔥 '+n+' '+(n%10===1&&n%100!==11?'день':[2,3,4].includes(n%10)&&![12,13,14].includes(n%100)?'дні':'днів')+' поспіль на вагах';
 }
 
+/* ---------- forecast ---------- */
+function renderForecast(){
+  const e=entries(),cur=current(),target=Number(data.profile.target),left=cur-target;
+  const addDays=n=>{const d=new Date();d.setDate(d.getDate()+Math.round(n));return d.toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'})};
+  const dur=w=>w<1.5?'~1 тиждень':w<9?'~'+Math.round(w)+' тиж.':'~'+fmt(w/4.35,0)+' міс.';
+  const realistic=left>0?`При стабільному темпі 0,5–1 кг на тиждень — між ${addDays(left/1*7)} і ${addDays(left/0.5*7)}.`:'';
+  const set=(d,sub,note)=>{$('fcDate').textContent=d;$('fcSub').textContent=sub;$('fcNote').textContent=note};
+  if(left<=0){set('Ціль досягнута! 🎉','Тепер головне — втримати результат.','');return}
+  const lastD=e.length?parseD(e[e.length-1][0]):parseD(today());
+  const recent=e.filter(x=>(lastD-parseD(x[0]))/864e5<=28);
+  const span=recent.length?(lastD-parseD(recent[0][0]))/864e5:0;
+  if(recent.length<4||span<7){
+    set('Збираю дані…',`Для прогнозу за твоїм темпом потрібен хоча б тиждень зважувань (зараз записів: ${recent.length}).`,realistic);return}
+  // лінійна регресія: вага від дня
+  const t0=parseD(recent[0][0]),xs=recent.map(x=>(parseD(x[0])-t0)/864e5),ys=recent.map(x=>x[1]);
+  const n=xs.length,mx=xs.reduce((a,b)=>a+b)/n,my=ys.reduce((a,b)=>a+b)/n;
+  let num_=0,den=0;xs.forEach((x,i)=>{num_+=(x-mx)*(ys[i]-my);den+=(x-mx)**2});
+  const slope=den?num_/den:0,rate=slope*7,trendNow=my+slope*(xs[n-1]-mx);
+  const rateTxt=`Твій темп: ${rate<0?'−':'+'}${fmt(Math.abs(rate),2)} кг/тиждень (за ${Math.round(span)+1} дн.)`;
+  if(rate>-0.05){set('Поки плато',rateTxt,'Вага зараз стоїть — це нормально, плато бувають у всіх. Продовжуй, і прогноз з’явиться. '+realistic);return}
+  const daysSinceLast=(parseD(today())-lastD)/864e5;
+  const weeks=Math.max(0,(trendNow-target)/(-rate)-daysSinceLast/7);
+  set(addDays(weeks*7),rateTxt+' · '+dur(weeks),
+    -rate>1.2?'Зараз темп дуже швидкий: на початку частина — це вода, далі він сповільниться. Реалістичніше: '+realistic.replace('При стабільному темпі','при').replace(/^./,c=>c):'Прогноз оновлюється з кожним зважуванням.');
+}
+
 /* ---------- weigh-in ---------- */
 function prevBefore(d){const e=entries().filter(x=>x[0]<d);return e.length?e[e.length-1]:null}
 function renderWeigh(){
@@ -330,7 +365,7 @@ $('log').addEventListener('click',ev=>{
 /* ---------- settings ---------- */
 function fillSettings(){const p=data.profile;$('pHeight').value=p.height;$('pStart').value=fmt(p.startWeight);$('pTarget').value=fmt(p.target);$('pDate').value=p.startDate}
 [['pHeight','height',100,230],['pStart','startWeight',30,300],['pTarget','target',30,300]].forEach(([id,key,min,max])=>{
-  $(id).addEventListener('input',()=>{const v=num($(id).value);if(v>=min&&v<=max){data.profile[key]=v;save();renderStats()}});
+  $(id).addEventListener('input',()=>{const v=num($(id).value);if(v>=min&&v<=max){data.profile[key]=v;save();renderStats();renderForecast()}});
 });
 $('pDate').addEventListener('change',()=>{data.profile.startDate=$('pDate').value||today();save();renderStats()});
 
@@ -347,7 +382,7 @@ $('importFile').onchange=async ev=>{
 /* ---------- init ---------- */
 function render(){
   $('todayText').textContent=new Date().toLocaleDateString('uk-UA',{weekday:'long',day:'numeric',month:'long'});
-  renderStats();renderWeigh();renderToday();renderWeek();renderChart();renderLog();
+  renderStats();renderForecast();renderWeigh();renderToday();renderWeek();renderChart();renderLog();
 }
 $('wDate').value=today();
 fillSettings();render();
