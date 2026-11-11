@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1e40af">
+<title>Мій прогрес</title>
+<style>
+:root{--bg:#f2f6fc;--card:#fff;--line:#e1e9f5;--text:#0f1f3d;--muted:#6b7c99;--blue:#2563eb;--blue-d:#1e40af;--blue-l:#e6efff;--blue-xl:#f5f8ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.hero{background:linear-gradient(160deg,#1e3a8a,#2563eb 65%,#3b82f6);color:#fff;padding:22px 16px 74px}
+.hero-in{max-width:620px;margin:auto}
+.date{opacity:.85;font-size:13px}
+h1{font-size:28px;line-height:1.1;margin:6px 0 14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+.wrap{max-width:620px;margin:-56px auto 0;padding:0 14px 40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 8px 24px rgba(30,64,175,.07)}
+h2{font-size:17px;margin:0 0 4px}
+.muted{color:var(--muted);font-size:13px;margin:0}
+.row{display:flex;gap:10px;align-items:center}
+.between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+input{width:100%;background:var(--blue-xl);color:var(--text);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;font:inherit;-webkit-appearance:none;appearance:none}
+input:focus{outline:none;border-color:var(--blue);background:#fff}
+label.f{display:block;color:var(--muted);font-size:12px;margin:0 0 5px}
+button{border:0;border-radius:12px;padding:12px 16px;background:var(--blue);color:#fff;font:inherit;font-weight:700;font-size:15px;cursor:pointer}
+button:active{transform:scale(.98)}
+button.ghost{background:var(--blue-l);color:var(--blue-d)}
+/* weigh-in */
+.weigh{display:flex;gap:10px;margin-top:14px}
+.big{position:relative;flex:1}
+.big input{font-size:26px;font-weight:700;padding:12px 44px 12px 14px}
+.big span{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600}
+.status{margin-top:12px;padding:11px 13px;border-radius:12px;background:var(--blue-xl);border:1px solid var(--line);font-size:14px}
+.status.done{background:var(--blue-l);border-color:#c7d8fb;color:var(--blue-d);font-weight:600}
+.small-date{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;color:var(--muted)}
+.small-date input{width:auto;padding:6px 9px;font-size:13px}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px}
+.stat{background:var(--blue-xl);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat small{display:block;color:var(--muted);font-size:12px}
+.stat strong{display:block;font-size:22px;margin-top:2px}
+.stat em{font-style:normal;font-size:12px;color:var(--blue)}
+.bar{height:10px;background:var(--blue-l);border-radius:99px;overflow:hidden;margin:14px 0 6px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3b82f6,#1d4ed8);border-radius:99px;transition:width .4s}
+/* habits */
+.score{font-weight:700;color:var(--blue);background:var(--blue-l);border-radius:999px;padding:4px 11px;font-size:14px}
+.habits{display:grid;gap:8px;margin-top:12px}
+.habit{display:flex;align-items:center;gap:12px;padding:13px;border:1.5px solid var(--line);border-radius:14px;cursor:pointer;user-select:none;transition:.15s}
+.habit input{position:absolute;opacity:0;pointer-events:none;width:0}
+.box{width:24px;height:24px;border-radius:50%;border:2px solid #c3d2ea;flex:none;display:grid;place-items:center;transition:.15s}
+.habit input:checked+.box{background:var(--blue);border-color:var(--blue)}
+.habit input:checked+.box::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.habit:has(input:checked){background:var(--blue-xl);border-color:#bcd0f7}
+.habit .t{font-size:15px}
+.water{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:12px 13px;border-radius:14px;background:var(--blue-xl);border:1px solid var(--line)}
+.glasses{font-size:18px;letter-spacing:1px;margin-top:2px}
+.water button{width:40px;height:40px;padding:0;font-size:22px;line-height:1}
+.praise{margin-top:12px;text-align:center;font-weight:700;color:var(--blue-d);font-size:16px}
+/* week */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px;text-align:center}
+.wd{font-size:11px;color:var(--muted)}
+.dot{width:34px;height:34px;margin:5px auto;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;border:2px solid var(--line);color:var(--muted)}
+.wd.today{color:var(--blue);font-weight:700}
+.ww{font-size:11px;color:var(--text)}
+/* chart + log */
+.chartbox{position:relative;margin-top:12px}
+canvas{width:100%;height:170px;display:block}
+.empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;text-align:center;padding:0 20px}
+.log{display:grid;gap:6px;margin-top:12px}
+.logrow{display:flex;align-items:center;gap:10px;background:var(--blue-xl);border-radius:11px;padding:9px 11px;font-size:14px}
+.logrow .d{flex:1;color:var(--muted)}
+.diff{font-size:12px;font-weight:700;min-width:48px;text-align:right}
+.down{color:var(--blue)}.up{color:#94a3b8}
+.del{background:none;color:#a7b4c9;padding:2px 6px;font-size:18px;font-weight:400}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.footer{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.bmibox{margin-top:14px;padding:14px;border-radius:14px;background:var(--blue-xl);border:1px solid var(--line)}
+.bmibig{font-size:28px;font-weight:800;color:var(--blue-d)}
+.bmiscale{position:relative;height:10px;border-radius:99px;margin:10px 0 4px;background:linear-gradient(90deg,#bfdbfe 0 19%,#3b82f6 19% 47%,#93c5fd 47% 68%,#1e3a8a 68%)}
+.bmiscale i{position:absolute;top:-5px;width:4px;height:20px;border-radius:2px;background:#0f1f3d;left:0;transform:translateX(-50%);box-shadow:0 0 0 2px #fff;transition:left .3s}
+.bmilabels{position:relative;height:14px;font-size:11px;color:var(--muted)}
+.bmilabels span{position:absolute;transform:translateX(-50%)}
+.bmilabels span:nth-child(1){left:19%}.bmilabels span:nth-child(2){left:47%}.bmilabels span:nth-child(3){left:68%}.bmilabels span:nth-child(4){left:89%}
+.bmiline{font-weight:600;margin:8px 0 4px;font-size:14px}
+.fc{margin-top:14px;padding:14px;border-radius:14px;background:linear-gradient(145deg,#eff5ff,#e3edff);border:1px solid #cddcfa}
+.fcdate{font-size:24px;font-weight:800;color:var(--blue-d);margin:4px 0 2px}
+.fcsub{font-size:14px;font-weight:600;color:var(--text)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);background:var(--blue-d);color:#fff;padding:11px 18px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;box-shadow:0 8px 24px rgba(30,64,175,.3);white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="date" id="todayText"></div>
+  <h1>Мій прогрес</h1>
+  <div class="chips"><span class="chip" id="dayChip">День 1</span><span class="chip" id="streakChip">🔥 0 днів поспіль</span></div>
+</div></header>
+
+<main class="wrap">
+
+  <section class="card">
+    <h2>☀️ Ранкове зважування</h2>
+    <p class="muted">Щоранку, після туалету, до їжі та води.</p>
+    <div class="weigh">
+      <div class="big"><input id="wValue" type="text" inputmode="decimal" placeholder="96,5" autocomplete="off"><span>кг</span></div>
+      <button id="wSave">Записати</button>
+    </div>
+    <div class="small-date">Дата: <input id="wDate" type="date"></div>
+    <div class="status" id="wStatus"></div>
+
+    <div class="stats">
+      <div class="stat"><small>Зараз</small><strong id="sCur">—</strong><em id="sCurNote"></em></div>
+      <div class="stat"><small>Вже скинув</small><strong id="sLost">—</strong><em id="sLostNote"></em></div>
+      <div class="stat"><small>До цілі</small><strong id="sLeft">—</strong><em id="sTarget"></em></div>
+      <div class="stat"><small>ІМТ</small><strong id="sBmi">—</strong><em id="sBmiNote"></em></div>
+    </div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="between muted"><span id="barLeft"></span><span id="barPct"></span><span id="barRight"></span></div>
+    <div class="fc">
+      <div style="font-weight:700">🎯 Коли досягну цілі</div>
+      <div class="fcdate" id="fcDate">—</div>
+      <div class="fcsub" id="fcSub"></div>
+      <div class="muted" id="fcNote" style="margin-top:6px"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="between"><h2>💪 Сьогодні я молодець?</h2><span class="score" id="score">0 / 5</span></div>
+    <p class="muted">Відмічай увечері, що вдалося. Не обов'язково все.</p>
+    <div class="habits" id="habits"></div>
+    <div class="water">
+      <div><div style="font-weight:600;font-size:15px">Вода: <span id="wCount">0</span> / 8 склянок</div><div class="glasses" id="glasses"></div></div>
+      <div class="row"><button class="ghost" id="wMinus">−</button><button id="wPlus">+</button></div>
+    </div>
+    <div class="praise" id="praise"></div>
+  </section>
+
+  <section class="card">
+    <h2>📅 Останні 7 днів</h2>
+    <p class="muted">У кружечку — скільки пунктів виконано, під ним — вага.</p>
+    <div class="week" id="week"></div>
+  </section>
+
+  <section class="card">
+    <h2>📉 Графік ваги</h2>
+    <p class="muted">Дивись на тенденцію за тижні — коливання ±1 кг за день це нормально.</p>
+    <div class="chartbox"><canvas id="chart"></canvas><div class="empty" id="chartEmpty"></div></div>
+    <div class="log" id="log"></div>
+  </section>
+
+  <section class="card">
+    <h2>⚙️ Мої дані</h2>
+    <p class="muted">Зберігається автоматично, ІМТ рахується одразу.</p>
+    <div class="grid2">
+      <div><label class="f" for="pHeight">Зріст, см</label><input id="pHeight" type="text" inputmode="numeric"></div>
+      <div><label class="f" for="pStart">Вага на старті, кг</label><input id="pStart" type="text" inputmode="decimal"></div>
+      <div><label class="f" for="pTarget">Бажана вага, кг</label><input id="pTarget" type="text" inputmode="decimal"></div>
+      <div><label class="f" for="pDate">Дата початку</label><input id="pDate" type="date"></div>
+    </div>
+    <div class="bmibox">
+      <div class="between"><span style="font-weight:700">Мій ІМТ</span><span class="bmibig" id="bBmi">—</span></div>
+      <div class="bmiscale"><i id="bMark"></i></div>
+      <div class="bmilabels"><span>18,5</span><span>25</span><span>30</span><span>35</span></div>
+      <div class="bmiline" id="bCat"></div>
+      <div class="muted" id="bFormula"></div>
+      <div class="muted" id="bRange" style="margin-top:4px"></div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <button class="ghost" id="export">⬇️ Резервна копія</button>
+    <button class="ghost" id="importBtn">⬆️ Відновити</button>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+  </div>
+  <p class="muted" style="text-align:center;margin-top:12px">Дані зберігаються тільки в цьому браузері. Час від часу роби резервну копію.</p>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const K='simpleProgressTracker';let mem=null;
+const load=()=>{try{return localStorage.getItem(K)}catch(e){return mem}};
+const save=()=>{const s=JSON.stringify(data);mem=s;try{localStorage.setItem(K,s)}catch(e){}};
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=()=>iso(new Date());
+const parseD=s=>new Date(s+'T12:00:00');
+const num=v=>{const n=parseFloat(String(v??'').replace(',','.').trim());return Number.isFinite(n)?n:NaN};
+const fmt=(n,d=1)=>Number(n).toLocaleString('uk-UA',{maximumFractionDigits:d});
+const signed=n=>(n>0?'+':n<0?'−':'')+fmt(Math.abs(n));
+const HABITS=[['held','Тримався — день під контролем'],['noOvereat','Не переїдав'],['water','Пив багато води'],['move','Рухався / гуляв'],['sleep','Нормально поспав']];
+const WATER_GOAL=8;
+
+let data={};try{data=JSON.parse(load()||'{}')||{}}catch(e){data={}}
+function normalize(){
+  data.profile=data.profile||{};data.days=data.days||{};data.weights=data.weights||{};data.water=data.water||{};
+  const p=data.profile;
+  if(!(p.height>0))p.height=169;
+  if(!(p.target>0))p.target=72;
+  if(!(p.startWeight>0)){const s=entries();p.startWeight=s.length?s[0][1]:(p.weight>0?p.weight:97)}
+  if(!p.startDate)p.startDate=today();
+}
+const entries=()=>Object.entries(data.weights||{}).map(([d,v])=>[d,Number(v)]).filter(e=>e[1]>0).sort((a,b)=>a[0].localeCompare(b[0]));
+const current=()=>{const e=entries();return e.length?e[e.length-1][1]:data.profile.startWeight};
+normalize();
+
+let toastT;function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200)}
+
+/* ---------- stats ---------- */
+function renderStats(){
+  const p=data.profile,cur=current(),start=Number(p.startWeight),target=Number(p.target),h=Number(p.height);
+  $('sCur').textContent=fmt(cur)+' кг';
+  const e=entries();
+  $('sCurNote').textContent=e.length?'останній запис '+parseD(e[e.length-1][0]).toLocaleDateString('uk-UA',{day:'numeric',month:'short'}):'ще немає записів';
+  const lost=start-cur;
+  $('sLost').textContent=(lost>0?fmt(lost):'0')+' кг';
+  $('sLostNote').textContent='від старту '+fmt(start)+' кг';
+  $('sLeft').textContent=fmt(Math.max(0,cur-target))+' кг';
+  $('sTarget').textContent='ціль '+fmt(target)+' кг';
+  if(h>=100&&h<=230){
+    const bmi=cur/((h/100)**2);
+    $('sBmi').textContent=fmt(bmi);
+    $('sBmiNote').textContent=bmi<18.5?'нижче норми':bmi<25?'норма':bmi<30?'надмірна вага':'ожиріння';
+    const cat=bmi<18.5?'Нижче норми':bmi<25?'Норма':bmi<30?'Надмірна вага':bmi<35?'Ожиріння I ступеня':bmi<40?'Ожиріння II ступеня':'Ожиріння III ступеня';
+    $('bBmi').textContent=fmt(bmi);
+    $('bMark').style.left=Math.max(1,Math.min(99,(bmi-14)/23.5*100))+'%';
+    $('bCat').textContent=cat;
+    $('bFormula').textContent=fmt(cur)+' кг ÷ ('+fmt(h/100,2)+' м)² = '+fmt(bmi)+(e.length?' · рахую за останнім зважуванням':' · поки немає зважувань, рахую за вагою на старті');
+    $('bRange').textContent='Нормальний ІМТ для твого зросту — це приблизно '+fmt(18.5*(h/100)**2,0)+'–'+fmt(24.9*(h/100)**2,0)+' кг. ІМТ — орієнтир, а не діагноз.';
+  }else{$('sBmi').textContent='—';$('sBmiNote').textContent='вкажи зріст';$('bBmi').textContent='—';$('bCat').textContent='Вкажи зріст, щоб порахувати';$('bFormula').textContent='';$('bRange').textContent=''}
+  const pct=start>target?Math.max(0,Math.min(100,(start-cur)/(start-target)*100)):0;
+  $('barFill').style.width=pct+'%';
+  $('barLeft').textContent=fmt(start)+' кг';$('barRight').textContent=fmt(target)+' кг';
+  $('barPct').textContent=Math.round(pct)+'% шляху';
+  const days=Math.max(1,Math.round((parseD(today())-parseD(p.startDate))/864e5)+1);
+  $('dayChip').textContent='День '+days;
+  // streak of weigh-ins
+  let d=new Date();if(!data.weights[iso(d)])d.setDate(d.getDate()-1);
+  let n=0;while(data.weights[iso(d)]){n++;d.setDate(d.getDate()-1)}
+  $('streakChip').textContent='🔥 '+n+' '+(n%10===1&&n%100!==11?'день':[2,3,4].includes(n%10)&&![12,13,14].includes(n%100)?'дні':'днів')+' поспіль на вагах';
+}
+
+/* ---------- forecast ---------- */
+function renderForecast(){
+  const e=entries(),cur=current(),target=Number(data.profile.target),left=cur-target;
+  const addDays=n=>{const d=new Date();d.setDate(d.getDate()+Math.round(n));return d.toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'})};
+  const dur=w=>w<1.5?'~1 тиждень':w<9?'~'+Math.round(w)+' тиж.':'~'+fmt(w/4.35,0)+' міс.';
+  const realistic=left>0?`При стабільному темпі 0,5–1 кг на тиждень — між ${addDays(left/1*7)} і ${addDays(left/0.5*7)}.`:'';
+  const set=(d,sub,note)=>{$('fcDate').textContent=d;$('fcSub').textContent=sub;$('fcNote').textContent=note};
+  if(left<=0){set('Ціль досягнута! 🎉','Тепер головне — втримати результат.','');return}
+  const lastD=e.length?parseD(e[e.length-1][0]):parseD(today());
+  const recent=e.filter(x=>(lastD-parseD(x[0]))/864e5<=28);
+  const span=recent.length?(lastD-parseD(recent[0][0]))/864e5:0;
+  if(recent.length<4||span<7){
+    set('Збираю дані…',`Для прогнозу за твоїм темпом потрібен хоча б тиждень зважувань (зараз записів: ${recent.length}).`,realistic);return}
+  // лінійна регресія: вага від дня
+  const t0=parseD(recent[0][0]),xs=recent.map(x=>(parseD(x[0])-t0)/864e5),ys=recent.map(x=>x[1]);
+  const n=xs.length,mx=xs.reduce((a,b)=>a+b)/n,my=ys.reduce((a,b)=>a+b)/n;
+  let num_=0,den=0;xs.forEach((x,i)=>{num_+=(x-mx)*(ys[i]-my);den+=(x-mx)**2});
+  const slope=den?num_/den:0,rate=slope*7,trendNow=my+slope*(xs[n-1]-mx);
+  const rateTxt=`Твій темп: ${rate<0?'−':'+'}${fmt(Math.abs(rate),2)} кг/тиждень (за ${Math.round(span)+1} дн.)`;
+  if(rate>-0.05){set('Поки плато',rateTxt,'Вага зараз стоїть — це нормально, плато бувають у всіх. Продовжуй, і прогноз з’явиться. '+realistic);return}
+  const daysSinceLast=(parseD(today())-lastD)/864e5;
+  const weeks=Math.max(0,(trendNow-target)/(-rate)-daysSinceLast/7);
+  set(addDays(weeks*7),rateTxt+' · '+dur(weeks),
+    -rate>1.2?'Зараз темп дуже швидкий: на початку частина — це вода, далі він сповільниться. Реалістичніше: '+realistic.replace('При стабільному темпі','при').replace(/^./,c=>c):'Прогноз оновлюється з кожним зважуванням.');
+}
+
+/* ---------- weigh-in ---------- */
+function prevBefore(d){const e=entries().filter(x=>x[0]<d);return e.length?e[e.length-1]:null}
+function renderWeigh(){
+  const d=$('wDate').value||today(),v=data.weights[d],st=$('wStatus');
+  const isToday=d===today();
+  if(v){
+    const prev=prevBefore(d);
+    st.className='status done';
+    st.textContent='✓ '+(isToday?'Сьогодні':parseD(d).toLocaleDateString('uk-UA'))+' записано: '+fmt(v)+' кг'+(prev?' ('+signed(v-prev[1])+' кг від попереднього)':'');
+  }else{
+    st.className='status';
+    st.textContent=isToday?'Сьогодні ще не зважувався — стань на ваги і запиши 🙂':'На цю дату записів немає.';
+  }
+}
+$('wSave').onclick=()=>{
+  const d=$('wDate').value||today(),v=num($('wValue').value);
+  if(!(v>=30&&v<=300)){toast('Введи вагу, наприклад 96,5');return}
+  data.weights[d]=Math.round(v*10)/10;data.profile.weight=current();save();
+  $('wValue').value='';$('wValue').blur();
+  const prev=prevBefore(d);
+  toast(prev?(v<prev[1]?'Мінус '+fmt(prev[1]-v)+' кг 💙':v>prev[1]?'Записано. Це просто коливання — йдемо далі':'Записано, стабільно 👍'):'Перший запис є 💙');
+  render();
+};
+$('wValue').addEventListener('keydown',e=>{if(e.key==='Enter')$('wSave').click()});
+$('wDate').addEventListener('change',renderWeigh);
+
+/* ---------- habits ---------- */
+$('habits').innerHTML=HABITS.map(([k,t])=>`<label class="habit"><input type="checkbox" data-key="${k}"><span class="box"></span><span class="t">${t}</span></label>`).join('');
+function dayScore(d){const c=data.days[d]||{};return HABITS.filter(([k])=>c[k]).length}
+function renderToday(){
+  const k=today(),c=data.days[k]||{};
+  document.querySelectorAll('#habits input').forEach(x=>x.checked=!!c[x.dataset.key]);
+  const s=dayScore(k);$('score').textContent=s+' / 5';
+  const w=data.water[k]||0;$('wCount').textContent=w;
+  $('glasses').textContent='💧'.repeat(Math.min(w,WATER_GOAL))+'○'.repeat(Math.max(0,WATER_GOAL-w))+(w>WATER_GOAL?' +'+(w-WATER_GOAL):'');
+  $('praise').textContent=s===5?'🎉 Ти сьогодні реально молодець!':s>=3?'💙 Гарний день, так тримати!':s>=1?'Хороший початок 👍':'День ще не закінчився 🙂';
+}
+document.querySelectorAll('#habits input').forEach(el=>el.addEventListener('change',()=>{
+  const k=today();data.days[k]=data.days[k]||{};data.days[k][el.dataset.key]=el.checked;save();renderToday();renderWeek();
+  if(dayScore(k)===5)toast('Всі 5 з 5! Молодець 🎉');
+}));
+function setWater(delta){
+  const k=today();const w=Math.max(0,(data.water[k]||0)+delta);data.water[k]=w;
+  data.days[k]=data.days[k]||{};
+  if(delta>0&&w===WATER_GOAL){data.days[k].water=true;toast('Норма води виконана 💧')}
+  save();renderToday();renderWeek();
+}
+$('wPlus').onclick=()=>setWater(1);$('wMinus').onclick=()=>setWater(-1);
+
+/* ---------- week ---------- */
+function renderWeek(){
+  let html='';
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);const k=iso(d),s=dayScore(k),w=data.weights[k];
+    const a=s/5,bg=s?`rgba(37,99,235,${.15+a*.85})`:'transparent',col=a>.5?'#fff':s?'#1e40af':'#9aa8bf';
+    html+=`<div><div class="wd ${i===0?'today':''}">${d.toLocaleDateString('uk-UA',{weekday:'short'})}</div><div class="dot" style="background:${bg};border-color:${s?'transparent':'var(--line)'};color:${col}">${s}</div><div class="ww">${w?fmt(w):'·'}</div></div>`;
+  }
+  $('week').innerHTML=html;
+}
+
+/* ---------- chart + log ---------- */
+function renderChart(){
+  const cv=$('chart'),dpr=window.devicePixelRatio||1,W=cv.clientWidth||600,H=170;
+  cv.width=W*dpr;cv.height=H*dpr;const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  const e=entries().slice(-60);
+  $('chartEmpty').textContent=e.length<2?(e.length?'Додай ще одне зважування — з’явиться графік':'Тут з’явиться графік після кількох зважувань'):'';
+  if(e.length<2)return;
+  const vals=e.map(x=>x[1]);let lo=Math.min(...vals),hi=Math.max(...vals);const padV=Math.max(.5,(hi-lo)*.15);lo-=padV;hi+=padV;
+  const L=38,R=12,T=12,B=26,pw=W-L-R,ph=H-T-B;
+  const t0=parseD(e[0][0]).getTime(),t1=parseD(e[e.length-1][0]).getTime(),tspan=Math.max(1,t1-t0);
+  const X=d=>L+(parseD(d).getTime()-t0)/tspan*pw,Y=v=>T+(hi-v)/(hi-lo)*ph;
+  ctx.font='11px -apple-system,Segoe UI,sans-serif';ctx.fillStyle='#8a9ab5';ctx.strokeStyle='#e8eef8';ctx.lineWidth=1;
+  for(let i=0;i<=3;i++){const v=lo+(hi-lo)*i/3,y=Y(v);ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(W-R,y);ctx.stroke();ctx.textAlign='right';ctx.fillText(fmt(v),L-6,y+4)}
+  ctx.textAlign='left';ctx.fillText(parseD(e[0][0]).toLocaleDateString('uk-UA',{day:'numeric',month:'short'}),L,H-6);
+  ctx.textAlign='right';ctx.fillText(parseD(e[e.length-1][0]).toLocaleDateString('uk-UA',{day:'numeric',month:'short'}),W-R,H-6);
+  const g=ctx.createLinearGradient(0,T,0,T+ph);g.addColorStop(0,'rgba(37,99,235,.22)');g.addColorStop(1,'rgba(37,99,235,0)');
+  ctx.beginPath();e.forEach(([d,v],i)=>i?ctx.lineTo(X(d),Y(v)):ctx.moveTo(X(d),Y(v)));
+  ctx.lineTo(X(e[e.length-1][0]),T+ph);ctx.lineTo(X(e[0][0]),T+ph);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();e.forEach(([d,v],i)=>i?ctx.lineTo(X(d),Y(v)):ctx.moveTo(X(d),Y(v)));
+  ctx.strokeStyle='#2563eb';ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
+  e.forEach(([d,v],i)=>{const last=i===e.length-1;ctx.beginPath();ctx.arc(X(d),Y(v),last?5:3,0,Math.PI*2);ctx.fillStyle=last?'#1e40af':'#fff';ctx.fill();ctx.strokeStyle='#2563eb';ctx.lineWidth=2;ctx.stroke()});
+}
+function renderLog(){
+  const e=entries();
+  $('log').innerHTML=e.map((x,i)=>[x,i?x[1]-e[i-1][1]:null]).reverse().slice(0,14).map(([[d,v],df])=>
+    `<div class="logrow"><span class="d">${parseD(d).toLocaleDateString('uk-UA',{weekday:'short',day:'numeric',month:'short'})}</span><strong>${fmt(v)} кг</strong><span class="diff ${df<0?'down':'up'}">${df===null?'':signed(df)}</span><button class="del" data-del="${d}" aria-label="Видалити">×</button></div>`
+  ).join('')||'<p class="muted">Записів поки немає.</p>';
+}
+$('log').addEventListener('click',ev=>{
+  const d=ev.target.dataset&&ev.target.dataset.del;if(!d)return;
+  if(ev.target.dataset.confirm!=='1'){ev.target.dataset.confirm='1';ev.target.textContent='видалити?';ev.target.style.fontSize='12px';ev.target.style.color='#2563eb';return}
+  delete data.weights[d];save();render();toast('Запис видалено');
+});
+
+/* ---------- settings ---------- */
+function fillSettings(){const p=data.profile;$('pHeight').value=p.height;$('pStart').value=fmt(p.startWeight);$('pTarget').value=fmt(p.target);$('pDate').value=p.startDate}
+[['pHeight','height',100,230],['pStart','startWeight',30,300],['pTarget','target',30,300]].forEach(([id,key,min,max])=>{
+  $(id).addEventListener('input',()=>{const v=num($(id).value);if(v>=min&&v<=max){data.profile[key]=v;save();renderStats();renderForecast()}});
+});
+$('pDate').addEventListener('change',()=>{data.profile.startDate=$('pDate').value||today();save();renderStats()});
+
+/* ---------- backup ---------- */
+$('export').onclick=()=>{const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='my-progress-'+today()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async ev=>{
+  const f=ev.target.files[0];if(!f)return;
+  try{const d=JSON.parse(await f.text());if(typeof d!=='object'||!d)throw 0;data=d;normalize();save();fillSettings();render();toast('Дані відновлено ✓')}
+  catch(e){toast('Не вдалося прочитати файл')}
+  ev.target.value='';
+};
+
+/* ---------- init ---------- */
+function render(){
+  $('todayText').textContent=new Date().toLocaleDateString('uk-UA',{weekday:'long',day:'numeric',month:'long'});
+  renderStats();renderForecast();renderWeigh();renderToday();renderWeek();renderChart();renderLog();
+}
+$('wDate').value=today();
+fillSettings();render();
+let lastDay=today();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&today()!==lastDay){lastDay=today();$('wDate').value=today();render()}});
+window.addEventListener('resize',renderChart);
+</script>
+</body>
+</html>
